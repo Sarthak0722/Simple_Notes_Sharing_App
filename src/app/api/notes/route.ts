@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { AppError } from '@/types/errors'
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +10,9 @@ export async function POST(request: Request) {
     })
     return NextResponse.json(note, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: 'Error creating note' }, { status: 500 })
+    console.error('Error creating note:', error)
+    const message = error instanceof Error ? error.message : 'Error creating note'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 
@@ -27,11 +30,14 @@ export async function GET(request: Request) {
     })
 
     if (!note) {
-      return NextResponse.json({ error: 'Note not found' }, { status: 404 })
+      throw new AppError('Note not found')
     }
 
     return NextResponse.json(note)
   } catch (error) {
-    return NextResponse.json({ error: 'Error fetching note' }, { status: 500 })
+    console.error('Error fetching note:', error)
+    const message = error instanceof Error ? error.message : 'Error fetching note'
+    const status = error instanceof AppError ? 404 : 500
+    return NextResponse.json({ error: message }, { status })
   }
 } 

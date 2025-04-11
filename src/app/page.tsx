@@ -24,15 +24,16 @@ export default function Home() {
       })
 
       if (!response.ok) {
-        throw new Error('Failed to create note')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create note')
       }
 
       const data = await response.json()
       const noteUrl = `${window.location.origin}/${data.id}`
       setNoteUrl(noteUrl)
       setContent('')
-    } catch (err) {
-      setError('Failed to create note. Please try again.')
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to create note. Please try again.')
     } finally {
       setLoading(false)
     }

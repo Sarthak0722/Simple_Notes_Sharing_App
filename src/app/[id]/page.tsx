@@ -21,12 +21,13 @@ export default function NotePage() {
       try {
         const response = await fetch(`/api/notes?id=${params.id}`)
         if (!response.ok) {
-          throw new Error('Note not found')
+          const errorData = await response.json()
+          throw new Error(errorData.error || 'Note not found')
         }
         const data = await response.json()
         setNote(data)
-      } catch (err) {
-        setError('Failed to load note')
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Failed to load note')
       } finally {
         setLoading(false)
       }
